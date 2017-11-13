@@ -78,6 +78,9 @@ namespace wot_replays_downloader
                      yield return $"http://wotreplays.eu/site/index/version/{version}/battle_type/{type}/sort/xp.desc/";
         }
 
+        private static int UrlCounter = 0;
+        private static readonly int UrlCount = ReplayVersions.Count * BattleTypes.Count;
+
         private async static Task<List<string>> GetDownloadUrlsFromWotreplays(string url)
         {
             string pattern = @"\/site\/download\/([0-9]){7}"; // href="\/site\/download\/([0-9]){7}"
@@ -87,6 +90,7 @@ namespace wot_replays_downloader
             using (StreamReader reader = new StreamReader(response.GetResponseStream()))
             {
                 MatchCollection matchList = Regex.Matches(await reader.ReadToEndAsync(), pattern);
+                Console.WriteLine($"parsed {Interlocked.Increment(ref UrlCounter)}/{UrlCount} {url}");
                 return matchList.Cast<Match>().Select(x => x.Value).ToList();
             }
         }
