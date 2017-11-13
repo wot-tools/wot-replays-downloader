@@ -23,7 +23,8 @@ namespace wot_replays_downloader
             int count = 0;
             int counter = 0;
 
-            Task.WaitAll(GenerateURLsForCompatibilityReplays()
+            Task.WaitAll(ReplayVersions
+                .Zip(BattleTypes, (v, t) => $"http://wotreplays.eu/site/index/version/{v}/battle_type/{t}/sort/xp.desc/")
                 .Select(url => GetDownloadUrlsFromWotreplays(url)
                     .ContinueWith(async t =>
                     {
@@ -34,6 +35,7 @@ namespace wot_replays_downloader
                             Console.WriteLine($"finished {Interlocked.Increment(ref counter)}/{count}");
                         }
                     })).ToArray());
+            Console.WriteLine("done!");
             Console.Read();
         }
 
@@ -65,18 +67,6 @@ namespace wot_replays_downloader
         {
              "1", "2", "3", "6", "7", "8", "9", "10", "11", "12", "1009", "22", "24", "4-14", "5-13", "16-17"
         };
-
-        private static IEnumerable<string> GenerateURLsForCompatibilityReplays()
-        {
-            return GenerateURLsForCompatibilityReplays(ReplayVersions, BattleTypes);
-        }
-
-        private static IEnumerable<string> GenerateURLsForCompatibilityReplays(List<string> replayVersions, List<string> battleTypes)
-        {
-            foreach (var version in replayVersions)
-                foreach (var type in battleTypes)
-                     yield return $"http://wotreplays.eu/site/index/version/{version}/battle_type/{type}/sort/xp.desc/";
-        }
 
         private static int UrlCounter = 0;
         private static readonly int UrlCount = ReplayVersions.Count * BattleTypes.Count;
