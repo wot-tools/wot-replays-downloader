@@ -25,13 +25,13 @@ namespace wot_replays_downloader
 
             Task.WaitAll(ReplayVersions
                 .Zip(BattleTypes, (v, t) => $"http://wotreplays.eu/site/index/version/{v}/battle_type/{t}/sort/xp.desc/")
-                .Select(url => GetDownloadUrlsFromWotreplays(url)
+                .Select(url => GetDownloadUrlsFromWotreplaysAsync(url)
                     .ContinueWith(async t =>
                     {
                         if (t.Result.Count > 0)
                         {
                             Interlocked.Increment(ref count);
-                            await DownloadReplay($"http://wotreplays.eu{t.Result[0]}", replayFolder);
+                            await DownloadReplayAsync($"http://wotreplays.eu{t.Result[0]}", replayFolder);
                             Console.WriteLine($"finished {Interlocked.Increment(ref counter)}/{count}");
                         }
                     })).ToArray());
@@ -39,7 +39,7 @@ namespace wot_replays_downloader
             Console.Read();
         }
 
-        private static async Task DownloadReplay(string url, string destinationFolder)
+        private static async Task DownloadReplayAsync(string url, string destinationFolder)
         {
             WebRequest request = WebRequest.Create(url);
             using (WebResponse response = await request.GetResponseAsync())
@@ -71,7 +71,7 @@ namespace wot_replays_downloader
         private static int UrlCounter = 0;
         private static readonly int UrlCount = ReplayVersions.Count * BattleTypes.Count;
 
-        private async static Task<List<string>> GetDownloadUrlsFromWotreplays(string url)
+        private async static Task<List<string>> GetDownloadUrlsFromWotreplaysAsync(string url)
         {
             string pattern = @"\/site\/download\/([0-9]){7}"; // href="\/site\/download\/([0-9]){7}"
 
