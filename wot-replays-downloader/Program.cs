@@ -24,7 +24,7 @@ namespace wot_replays_downloader
             int counter = 0;
 
             Task.WaitAll(ReplayVersions
-                .Zip(BattleTypes, (v, t) => $"http://wotreplays.eu/site/index/version/{v}/battle_type/{t}/sort/xp.desc/")
+                .SelectMany( v => BattleTypes.Select(t => $"http://wotreplays.eu/site/index/version/{v}/battle_type/{t}/sort/xp.desc/"))
                 .Select(url => GetDownloadUrlsFromWotreplaysAsync(url)
                     .ContinueWith(async t =>
                     {
